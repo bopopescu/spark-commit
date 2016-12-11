@@ -32,11 +32,13 @@ if [ -z "$SPARK_ENV_LOADED" ]; then
   # Returns the parent of the directory this script lives in.
   parent_dir="${SPARK_HOME}"
 
+#变量为空，返回"$parent_dir"/conf}"，否则返回SPARK_CONF_DIR
   user_conf_dir="${SPARK_CONF_DIR:-"$parent_dir"/conf}"
 
   if [ -f "${user_conf_dir}/spark-env.sh" ]; then
     # Promote all variable declarations to environment (exported) variables
     set -a
+    #如果该文件没有执行权限，.可以实现不添加执行权限的情况下执行脚本
     . "${user_conf_dir}/spark-env.sh"
     set +a
   fi

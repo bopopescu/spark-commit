@@ -45,11 +45,14 @@ fi
 
 GREP_OPTIONS=
 num_jars="$(ls -1 "$ASSEMBLY_DIR" | grep "^spark-assembly.*hadoop.*\.jar$" | wc -l)"
+#-a 相当于&&， -z 字符串长度为零则为true，-d 目录存在为true
+#判断是否编译过
 if [ "$num_jars" -eq "0" -a -z "$SPARK_ASSEMBLY_JAR" -a "$SPARK_PREPEND_CLASSES" != "1" ]; then
   echo "Failed to find Spark assembly in $ASSEMBLY_DIR." 1>&2
   echo "You need to build Spark before running this program." 1>&2
   exit 1
 fi
+
 if [ -d "$ASSEMBLY_DIR" ]; then
   ASSEMBLY_JARS="$(ls -1 "$ASSEMBLY_DIR" | grep "^spark-assembly.*hadoop.*\.jar$" || true)"
   if [ "$num_jars" -gt "1" ]; then
@@ -66,12 +69,14 @@ LAUNCH_CLASSPATH="$SPARK_ASSEMBLY_JAR"
 
 # Add the launcher build dir to the classpath if requested.
 if [ -n "$SPARK_PREPEND_CLASSES" ]; then
+  #默认未定义，为空，不执行
   LAUNCH_CLASSPATH="${SPARK_HOME}/launcher/target/scala-$SPARK_SCALA_VERSION/classes:$LAUNCH_CLASSPATH"
 fi
 
 export _SPARK_ASSEMBLY="$SPARK_ASSEMBLY_JAR"
 
 # For tests
+# -n ,字符串非空为true
 if [[ -n "$SPARK_TESTING" ]]; then
   unset YARN_CONF_DIR
   unset HADOOP_CONF_DIR
@@ -80,8 +85,12 @@ fi
 # The launcher library will print arguments separated by a NULL character, to allow arguments with
 # characters that would be otherwise interpreted by the shell. Read that in a while loop, populating
 # an array that will be used to exec the final command.
+#定义一个数组
 CMD=()
+#IFS设置分割符为空格、换行符、回车
+
 while IFS= read -d '' -r ARG; do
   CMD+=("$ARG")
 done < <("$RUNNER" -cp "$LAUNCH_CLASSPATH" org.apache.spark.launcher.Main "$@")
+#()会执行里面的语句，该输出每个语句末尾都是'\0'
 exec "${CMD[@]}"

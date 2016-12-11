@@ -106,6 +106,7 @@ class SparkSubmitCommandBuilder extends AbstractCommandBuilder {
       this.allowsMixedArguments = false;
     }
 
+    //设置spark的一些参数,OptionParser是内部类，直接设置SparkSubmitCommandBuilder的成员变量
     OptionParser parser = new OptionParser();
     parser.parse(submitArgs);
     this.printInfo = parser.infoRequested;

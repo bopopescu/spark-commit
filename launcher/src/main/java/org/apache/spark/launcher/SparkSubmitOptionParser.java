@@ -160,6 +160,7 @@ class SparkSubmitOptionParser {
           idx++;
           value = args.get(idx);
         }
+        //
         if (!handle(name, value)) {
           break;
         }
